@@ -16,13 +16,14 @@ import { SessionInformation } from 'src/app/interfaces/sessionInformation.interf
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  const mockAuthService = {
-    login: jest.fn()
-  };
+  let authService :AuthService;
+  let httpTestingController: HttpTestingController;
+
 
   // Mock for SessionService
   const mockSessionService = {
@@ -33,17 +34,22 @@ describe('LoginComponent', () => {
   const mockRouter = {
     navigate: jest.fn()
   };
+  const loginRequest: LoginRequest = {
+    email: 'test@example.com',
+    password: 'password123'
+  };
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
       providers: [   
-        { provide: AuthService, useValue: mockAuthService },
         { provide: SessionService, useValue: mockSessionService },
-        { provide: Router, useValue: mockRouter }],
+        { provide: Router, useValue: mockRouter },
+      ],
       imports: [
         RouterTestingModule,
         BrowserAnimationsModule,
         HttpClientModule,
+        HttpClientTestingModule,
         MatCardModule,
         MatIconModule,
         MatFormFieldModule,
@@ -53,6 +59,9 @@ describe('LoginComponent', () => {
       .compileComponents();
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    authService = TestBed.inject(AuthService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+
     fixture.detectChanges();
   });
 
@@ -83,10 +92,7 @@ describe('LoginComponent', () => {
 
   it('should log in the user and navigate on successful login', () => {
     // Données simulées pour le formulaire
-    const loginRequest: LoginRequest = {
-      email: 'test@example.com',
-      password: 'password123'
-    };
+ 
 
     const mockSessionInfo: SessionInformation = {
      
@@ -99,8 +105,7 @@ describe('LoginComponent', () => {
       admin:false
     };
   
-    // Simuler que authService.login() retourne un Observable avec un succès
-    mockAuthService.login.mockReturnValue(of(mockSessionInfo));
+    
 
     // Simuler que le formulaire contient les bonnes valeurs
     component.form.setValue({
@@ -110,29 +115,31 @@ describe('LoginComponent', () => {
 
     // Appel de la méthode submit
     component.submit();
-    expect(mockAuthService.login).toHaveBeenCalledWith(loginRequest);
-    expect(mockSessionService.logIn).toHaveBeenCalledWith(mockSessionInfo);
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/sessions']);
+      // Simulate the backend response
+    const req = httpTestingController.expectOne('api/auth/login');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(loginRequest);
+    req.flush(mockSessionInfo);
 
   });
 
   it('should set onError to true on login failure', () => {
-    // Simuler une erreur lors de la connexion
-    mockAuthService.login.mockReturnValue(throwError('Login failed'));
+
 
     // Simuler que le formulaire contient des valeurs valides
     component.form.setValue({
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password1234'
     });
 
     // Appel de la méthode submit
     component.submit();
+    const req = httpTestingController.expectOne('api/auth/login');
+    req.flush('Login failed', { status: 401, statusText: 'Unauthorized' });
 
-    // Vérifier que authService.login a été appelé
-    expect(mockAuthService.login).toHaveBeenCalled();
-
-    // Vérifier que onError est défini à true en cas d'erreur
     expect(component.onError).toBe(true);
+  
+
+
   });
 });

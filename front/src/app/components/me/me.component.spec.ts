@@ -16,6 +16,8 @@ import { Router } from '@angular/router';
 
 describe('MeComponent', () => {
   let component: MeComponent;
+  let service: UserService;
+
   let fixture: ComponentFixture<MeComponent>;
   const mockUserService = {
     getById: jest.fn().mockReturnValue(
@@ -70,6 +72,8 @@ describe('MeComponent', () => {
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    service = TestBed.inject(UserService);
+
   });
 
   it('should create', () => {
@@ -79,7 +83,7 @@ describe('MeComponent', () => {
   it('should set the user property on ngOnInit', () => {
     component.ngOnInit();
 
-    expect(mockUserService.getById).toHaveBeenCalledWith('1');
+    expect(service.getById).toHaveBeenCalledWith('1');
     expect(component.user).toEqual(expect.objectContaining({
       id: 1,
       email: 'john@example.com',
@@ -109,7 +113,7 @@ describe('MeComponent', () => {
     component.delete();
 
     // Vérifier que userService.delete a été appelé avec le bon ID
-    expect(mockUserService.delete).toHaveBeenCalledWith('1');
+    expect(service.delete).toHaveBeenCalledWith('1');
 
     // Simuler l'abonnement de l'observable de delete et vérifier que les autres méthodes ont été appelées
     expect(mockMatSnackBar.open).toHaveBeenCalledWith(
