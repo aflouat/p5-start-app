@@ -6,6 +6,7 @@ import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.SessionRepository;
 import com.openclassrooms.starterjwt.services.TeacherService;
+import com.openclassrooms.starterjwt.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,9 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -39,7 +38,9 @@ class SessionMapperImplTest {
     private LocalDateTime now = LocalDateTime.now();
     private Date dateNow = new Date();
     List<Long> userIds = new ArrayList<>();
-
+    @Mock
+    private UserService userService;
+    User user ;
     @BeforeEach
     void setUp() {
         userIds.add(1L);
@@ -51,7 +52,7 @@ class SessionMapperImplTest {
         secondSessionDto = new SessionDto(2L,"nouvelle session 2",dateNow,1L,
                 "description de la session",null,now.minusDays(1),now);
         users = new ArrayList<>();
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setFirstName("nouvelle user");
         users.add(user);
@@ -94,6 +95,20 @@ class SessionMapperImplTest {
         assertEquals(expectedSession,actualSession);
 
     }
+    @Test
+    void toEntity_shouldReturnSessionWhenSessionDtoIsNotNullAndTeacherIsNullAndWithoutUsers() {
+
+        Session expectedSession = new Session(1L,"nouvelle session",dateNow,
+                "description de la session",null,null,now.minusDays(2),now);
+        sessionDto.setTeacher_id(null);
+        expectedSession.setUsers(new ArrayList<User>());
+
+        Session actualSession = sessionMapper.toEntity(sessionDto);
+        assertNull(sessionDto.getTeacher_id());
+        assertEquals(0,actualSession.getUsers().size());
+        assertEquals(expectedSession,actualSession);
+
+    }
 
     @Test
     void toDto() {
@@ -104,6 +119,28 @@ class SessionMapperImplTest {
         SessionDto actualSessionDto = sessionMapper.toDto(session);
 
         assertEquals(expectedSessionDto,actualSessionDto);
+    }
+    @Test
+    void toDto_withoutIdTeacher() {
+        SessionDto expectedSessionDto = new SessionDto(1L,"nouvelle session",dateNow,
+                null,"description de la session",userIds,now.minusDays(2),now);
+
+        session = new Session(1L, "nouvelle session", dateNow, "description de la session", null, users, now.minusDays(2), now);
+
+        SessionDto actualSessionDto = sessionMapper.toDto(session);
+
+        assertEquals(expectedSessionDto,actualSessionDto);
+        assertNull(actualSessionDto.getTeacher_id());
+    }
+    @Test
+    void toDto_withSessionIsNull() {
+           Session sessionNull=null;
+           SessionDto expectedSessionDtoNull = null;
+
+        SessionDto actualSessionDto = sessionMapper.toDto(sessionNull);
+
+        assertNull(actualSessionDto);
+
     }
     @Test
     void toDto_withoutUsers() {
@@ -185,4 +222,40 @@ class SessionMapperImplTest {
         sessionDto.setUsers(userIds);
         assertEquals(sessionDto,actualSessionDto);
     }
+    @Test
+    void toDto_shouldHandleSessionWithoutUsers() {
+        List<User> nullUserList = null;
+        session.setUsers(nullUserList);
+        SessionDto actualSessionDto = sessionMapper.toDto(session);
+        //check if actualSessionDto is empty list
+        assertEquals(0, actualSessionDto.getUsers().size());
+    }
+
+
+    @Test
+    void toEntity_shouldHandleExistingAndNonExistingUserIds() {
+        // Créez un utilisateur existant et un identifiant d'utilisateur inexistant
+        User existingUser = new User();
+        existingUser.setId(1L);
+
+        Long nonExistingUserId = 99L;
+        List<Long> usersList = Arrays.asList(1L, nonExistingUserId);
+
+        // Configurez sessionDto avec cette liste d'identifiants
+        sessionDto.setUsers(usersList);
+
+        // Mock `userService.findById` pour retourner uniquement l'utilisateur existant
+        when(userService.findById(1L)).thenReturn(existingUser);
+        when(userService.findById(99L)).thenReturn(null);
+
+        // Conversion du DTO en entité
+        Session actualSession = sessionMapper.toEntity(sessionDto);
+
+        // Vérifiez que seuls les utilisateurs existants sont ajoutés dans la liste d'utilisateurs de la session
+        assertEquals(2, actualSession.getUsers().size());
+        assertEquals(existingUser, actualSession.getUsers().get(0));
+        //TODO code de la methode a reprendre avec .filter(Objects::nonNull)
+        assertNull(actualSession.getUsers().get(1));
+    }
+
 }

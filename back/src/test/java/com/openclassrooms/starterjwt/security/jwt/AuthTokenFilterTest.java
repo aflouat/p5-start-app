@@ -90,4 +90,20 @@ class AuthTokenFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(filterChain).doFilter(request, response);
     }
+    void doFilterInternal_EmptyJwtToken_ShouldThrowException() throws ServletException, IOException {
+        // Arrange
+        String jwt = "invalidJwtToken";
+
+        // Stubbing
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        when(jwtUtils.validateJwtToken(jwt)).thenReturn(false);
+
+        // Act
+        authTokenFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+    }
+
 }

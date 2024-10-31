@@ -113,7 +113,11 @@
 			<version>${moquito.version}</version>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -149,18 +153,39 @@
                     </excludes>
                 </configuration>
             </plugin>
-
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.5</version>
+				<configuration>
+					<excludes>
+						<!-- Exclut toutes les classes DTO -->
+						<exclude>com/openclassrooms/starterjwt/dto/**</exclude>
+						<exclude>com/openclassrooms/starterjwt/payload/**</exclude>
+						<exclude>com/openclassrooms/starterjwt/models/**</exclude>
+
+
+
+						<!-- Exclut les classes anonymes et internes générées -->
+						<exclude>**/*$*.class</exclude>
+
+						<!-- Exclut les classes générées par Lombok et certaines annotations -->
+						<exclude>**/*Lombok*.class</exclude>
+						<exclude>**/*$proxy*.class</exclude>
+						<exclude>**/*$javassist*.class</exclude> <!-- Pour des proxys Javassist si présents -->
+
+						<!-- Exclut des annotations spécifiques générées par Lombok -->
+						<exclude>**/*@ToString*</exclude>
+						<exclude>**/*@EqualsAndHashCode*</exclude>
+						<exclude>**/*@Builder*</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
 					</execution>
-					<!-- attached to Maven test phase -->
 					<execution>
 						<id>report</id>
 						<phase>test</phase>
@@ -168,7 +193,6 @@
 							<goal>report</goal>
 						</goals>
 					</execution>
-
 					<execution>
 						<id>jacoco-check</id>
 						<goals>
@@ -189,9 +213,9 @@
 							</rules>
 						</configuration>
 					</execution>
-
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 

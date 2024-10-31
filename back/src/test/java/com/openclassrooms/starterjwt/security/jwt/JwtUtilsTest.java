@@ -130,6 +130,17 @@ class JwtUtilsTest {
         // Assert
         assertFalse(isValid);
     }
+    @Test
+    void validateJwtToken_UnsupportedJwtException_ShouldReturnFalse() {
+        // Arrange
+        String token = "type:";
+
+        // Act
+        boolean isValid = jwtUtils.validateJwtToken(token);
+
+        // Assert
+        assertFalse(isValid);
+    }
 
     // Méthode utilitaire pour définir les champs privés
     private void setPrivateField(Object target, String fieldName, Object value) throws Exception {

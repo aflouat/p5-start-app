@@ -109,4 +109,21 @@ class UserControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
 
     }
+    @Test
+    void save_shouldReturnUnauthorizedWhenUserEmailIsInvalid() {
+        user1.setEmail("testNotFound@gmail.com");
+        when(userService.findById(1L)).thenReturn(user1);
+        assertNotNull(user1);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+
+        when(authentication.getPrincipal()).thenReturn(userDetails);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        ResponseEntity<?> response = userController.save("1");
+        assertEquals(HttpStatus.UNAUTHORIZED,response.getStatusCode());
+
+    }
 }
