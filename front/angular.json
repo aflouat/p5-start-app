@@ -37,6 +37,10 @@
             "scripts": []
           },
           "configurations": {
+            "coverage": {
+              "sourceMap": true,
+              "optimization": false
+            },
             "production": {
               "budgets": [
                 {
