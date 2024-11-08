@@ -1,17 +1,17 @@
-# Yoga App !
-## front : 
-e2e > cypress
-unit & integration testing with jasmin & jest
+# Yoga App - backend!
 
-## back
+
+
+## Presentation
 unit testing with mocquito & junit 
-integration testing with springboot & mockmvc & H2 database for the testing profil
+integration testing with springboot & mockmvc & Mysql database for the testing profil
+
+> git clone https://github.com/OpenClassrooms-Student-Center/P5-Full-Stack-testing
+> cd yoga/back
+## database
+create a mysql database
+> cre
 
 For launch and generate the jacoco code coverage:
 > mvn clean test
 
-for the front end
-> npm test
-
-for testing e2e with cypress, 
-> npx cypress open

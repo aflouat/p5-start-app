@@ -8,6 +8,15 @@ cy.get('input[formControlName=password]').type("test!1234{enter}{enter}");
 cy.url().should('include', '/sessions');
 
 });
+Cypress.Commands.add('loginNotAdmin', () => {
+  cy.visit('/login');
+  cy.get('input[formControlName=email]').type("test@studio.com");
+cy.get('input[formControlName=password]').type("test!1234{enter}{enter}");
+
+cy.url().should('include', '/sessions');
+
+
+});
 
 Cypress.Commands.add('loginAndGetToken', (): Cypress.Chainable<string> => {
   cy.visit('/login');
@@ -24,8 +33,8 @@ Cypress.Commands.add('loginAndGetToken', (): Cypress.Chainable<string> => {
   return cy.wait('@loginRequest').then((interception) => {
     if (interception.response && interception.response.body.token) {
       const token = interception.response.body.token;
-      cy.log('Token généré : ' + token);
-      localStorage.setItem('authToken', token); // Sauvegarde dans le localStorage si nécessaire
+      //cy.log('Token généré : ' + token);
+      //localStorage.setItem('authToken', token); // Sauvegarde dans le localStorage si nécessaire
       return cy.wrap(token).then(() => token); // Retourne une chaîne de caractères dans une chaîne Cypress
     } else {
       throw new Error('Le token n\'a pas été trouvé dans la réponse de la requête');

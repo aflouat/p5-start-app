@@ -1,3 +1,5 @@
+// cypress/support/index.d.ts
+
 declare namespace Cypress {
     interface Chainable {
       login(): Chainable<void>;
@@ -6,6 +8,7 @@ declare namespace Cypress {
      * @returns {Chainable<string>} The token as a string.
      */
     loginAndGetToken(): Chainable<string>;
+    loginNotAdmin(): Chainable<string>;
 
     /**
      * Custom command to create a teacher with a given token.

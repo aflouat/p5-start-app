@@ -11,7 +11,6 @@ import { SessionApiService } from '../../services/session-api.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { SessionInformation } from 'src/app/interfaces/sessionInformation.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 

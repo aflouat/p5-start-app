@@ -1,3 +1,4 @@
+//cypress.config.ts
 import { defineConfig } from 'cypress'
 const codeCoverage = require('@cypress/code-coverage/task');
 module.exports = defineConfig({
